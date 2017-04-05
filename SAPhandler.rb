@@ -4,24 +4,27 @@ class SAPhandler
 
   def initialize(sapFile)
 
-    # logger instance
-    @logger = Logger.new(STDOUT)
-    @logger.level = Logger::DEBUG
-    @logger.debug("Creating a producer")   
-
     # open SAP file
     file = File.read(sapFile)
     @data = JSON.parse(file)
     
-    # debug
-    @logger.debug("Update URI: #{@httpURI}")
-    @logger.debug("Update Secure URI: #{@httpsURI}")
-    @logger.debug("Token Request URI: #{@httpsTokenReqURI}")
-    @logger.debug("Registration URI: #{@httpsRegistrationURI}")
-
   end
 
 
+  def queries
+
+    @data["subscribes"]
+    
+  end
+
+
+  def updates
+
+    @data["updates"]
+    
+  end
+  
+  
   def httpsTokenReqURI
 
     host = @data["parameters"]["host"]
@@ -61,5 +64,14 @@ class SAPhandler
 
   end
 
+
+  def wsURI
+
+    host = @data["parameters"]["host"]
+    path = @data["parameters"]["path"]
+    wsPort = @data["parameters"]["subscribePort"]
+    return URI("ws://#{host}:#{wsPort}/#{path}")
+
+  end
 
 end

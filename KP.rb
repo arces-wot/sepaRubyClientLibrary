@@ -27,6 +27,7 @@ class KP
     @sapProfile = SAPhandler.new(sapFile)
 
     # reading network configuration
+    @wsURI = @sapProfile.wsURI
     @httpURI = @sapProfile.httpURI
     @httpsURI = @sapProfile.httpsURI
     @httpsRegistrationURI = @sapProfile.httpsRegistrationURI

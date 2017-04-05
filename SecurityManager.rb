@@ -15,7 +15,6 @@ class SecurityManager
     # TODO -- add logger level
     @logger = Logger.new(STDOUT)
     @logger.level = Logger::DEBUG
-    @logger.debug("Creating a producer")   
 
     # store auth data
     @httpsRegistrationURI = httpsRegistrationURI
