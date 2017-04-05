@@ -15,7 +15,7 @@ class SAPhandler
 
     prefixes = ""
     @data["namespaces"].each do |k,v|
-      prefixes += "PREFIX #{k} : <#{v}> . \n"
+      prefixes += "PREFIX #{k}: <#{v}> "
     end
     return prefixes
     

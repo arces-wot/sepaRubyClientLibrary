@@ -56,6 +56,8 @@ class Consumer < KP
         end
         
         # update the query
+        @logger.debug "???????????????????????????"
+        puts @sapProfile.prefixes
         sparqlQuery = @sapProfile.prefixes + q
 
       # the query is not in the SAP content
