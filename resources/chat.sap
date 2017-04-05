@@ -6,14 +6,19 @@
     "namespaces" : { "iot":"http://www.arces.unibo.it/iot#",
 		     "rdf":"http://www.w3.org/1999/02/22-rdf-syntax-ns#"},
     "updates": {
-	"ADD_MESSAGE":{
-	    "sparql":"insert data {?message rdf:type chat:Message . ?message chat:message ?text . ?message chat:user ?nickname}",
+	"ADD_PERSON":{
+	    "sparql":"INSERT DATA { ?person rdf:type iot:Person . ?person iot:hasName ?name }",
 	    "forcedBindings": {
-		"text" : {"type":"literal", "value":""},
-		"nickname" : {"type":"literal", "value":""},
-		"message" : {"type":"uri", "value":""}}}	},
+		"person" : {"type":"uri", "value":""},
+		"name" : {"type":"literal", "value":""}}}
+    },    
     "subscribes": {
-	"MESSAGE":{	
-	    "sparql":"select ?nickname ?text ?message where {?message rdf:type chat:Message . ?message chat:message ?text . ?message chat:user ?nickname}",
-	    "forcedBindings": {}}}
+	"CLASS_INSTANCES":{
+	    "sparql":"SELECT ?s WHERE { ?s rdf:type ?class }",
+	    "forcedBindings": {
+		"class" : {"type":"uri", "value":""}}},
+	"EVERYTHING":{	
+	    "sparql":"SELECT ?s ?p ?o WHERE  { ?s ?p ?o }",
+	    "forcedBindings": {}}
+    }
 }
