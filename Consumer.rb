@@ -15,10 +15,13 @@ class Consumer < KP
 
   # class constructor
   def initialize(sapFile, clientId, secure)
-    
+   
     # invoke mother's constructor
     super(sapFile, clientId, secure)
 
+    # debug print
+    @logger.debug("=== Consumer::initialize invoked ===")
+    
     # read queries
     @queries = @sapProfile.queries
     
@@ -32,7 +35,7 @@ class Consumer < KP
   def consume(sparqlQuery, forcedBindings, fromSap)
 
     # debug print
-    @logger.debug("=== consume invoked ===")
+    @logger.debug("=== Consumer::consume invoked ===")
 
     # determine the query to be performed
     if fromSap
@@ -51,11 +54,15 @@ class Consumer < KP
             q.gsub!(varname, fbind)
           end
         end
-
-        # update the query
-        sparqlQuery = q
         
-      end      
+        # update the query
+        sparqlQuery = @sapProfile.prefixes + q
+
+      # the query is not in the SAP content
+      else
+        return false, nil
+      end
+      
     end
 
     # debug print

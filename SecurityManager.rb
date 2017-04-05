@@ -33,7 +33,7 @@ class SecurityManager
   def register
 
     # debug print
-    @logger.debug("Registering the producer")
+    @logger.debug("Registering the KP")
 
     # https request
     http = Net::HTTP.new(@httpsRegistrationURI.host, @httpsRegistrationURI.port)

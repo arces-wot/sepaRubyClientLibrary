@@ -11,17 +11,24 @@ class SAPhandler
   end
 
 
-  def queries
+  def prefixes
 
-    @data["subscribes"]
+    prefixes = ""
+    @data["namespaces"].each do |k,v|
+      prefixes += "PREFIX #{k} : <#{v}> . \n"
+    end
+    return prefixes
     
+  end
+  
+  
+  def queries
+    @data["subscribes"]    
   end
 
 
   def updates
-
-    @data["updates"]
-    
+    @data["updates"]    
   end
   
   
