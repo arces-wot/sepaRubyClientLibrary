@@ -49,13 +49,9 @@ class Consumer < KP
         # check if forced bindings are needed
         if not(forcedBindings.nil?)
           forcedBindings.each do |k,v|
-            varname = "?#{k} "
-            fbind = " #{v} "
-            q.gsub!(varname, fbind)
+            q.gsub!("?#{k} ", " #{v} ")
           end
         end
-        
-        # update the query
         sparqlQuery = @sapProfile.prefixes + q
 
       # the query is not in the SAP content
