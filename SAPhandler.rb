@@ -81,4 +81,14 @@ class SAPhandler
 
   end
 
+
+  def wssURI
+
+    host = @data["parameters"]["host"]
+    path = @data["parameters"]["path"]
+    wssPort = @data["parameters"]["subscribeSecurePort"]
+    return URI("wss://#{host}:#{wssPort}/#{path}")
+
+  end
+
 end

@@ -64,54 +64,9 @@ class Consumer < KP
     # debug print
     @logger.debug("Issuing the following query:")
     @logger.debug(sparqlQuery)
-    
-    # choose between secure or insecure
-    if @secure
 
-      # register, if needed
-      if @securityManager.clientId.nil? or @securityManager.clientSecret.nil?
-        @securityManager.register()
-      end
-      
-      # get token, if needed
-      if @securityManager.token.nil?
-        @securityManager.getToken()
-      end
-      
-      # https request
-      secret = "Bearer " + @securityManager.token
-      http = Net::HTTP.new(@httpsURI.host, @httpsURI.port)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl?
-      req = Net::HTTP::Post.new(@httpsURI.path,
-                                'Content-Type' => 'application/sparql-query',
-                                'Accept' => 'application/json',
-                                'Authorization' => secret.delete("\n"))
-      req.body = sparqlQuery
-      res = http.request(req)
-      result = res.body
-      @logger.debug(result)
-      
-    else
-
-      # http request
-      http = Net::HTTP.new(@httpURI.host, @httpURI.port)
-      req = Net::HTTP::Post.new(@httpURI.path,
-                                'Content-Type' => 'application/sparql-query',
-                                'Accept' => 'application/json')
-      req.body = sparqlQuery
-      res = http.request(req)
-      result = res.body
-      @logger.debug(result)
-      
-    end
-
-    # return 
-    if res.code == 200
-      return true, result
-    else
-      return false, result
-    end
+    # http(s) request
+    return @httpManager.queryRequest(sparqlQuery)
     
   end
 
