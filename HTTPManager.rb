@@ -12,9 +12,9 @@ class HTTPManager
   def initialize(httpURI, httpsURI, httpsRegistrationURI, httpsTokenReqURI, kpId, secure)
 
     # logger instance
-    # TODO -- add logger level
     @logger = Logger.new(STDOUT)
     @logger.level = Logger::DEBUG
+    @logger.debug("=== HTTPManager::initialize invoked ===")
 
     # store http and https update/query URIs
     @httpsURI = httpsURI
@@ -38,7 +38,7 @@ class HTTPManager
   def register
 
     # debug print
-    @logger.debug("Registering the KP")
+    @logger.debug("=== HTTPManager::register invoked ===")
 
     # https request
     http = Net::HTTP.new(@httpsRegistrationURI.host, @httpsRegistrationURI.port)
@@ -65,7 +65,7 @@ class HTTPManager
   def getToken
 
     # debug print
-    @logger.debug("Getting the token")
+    @logger.debug("=== HTTPManager::getToken invoked ===")
 
     # https request
     secret = "Basic " + Base64.encode64(@clientId + ":" + @clientSecret)
@@ -192,21 +192,6 @@ class HTTPManager
     # return
     return status, result
 
-  end
-
-  
-  def clientSecret
-    @clientSecret
-  end
-  
-
-  def clientId
-    @clientId
-  end
-
-
-  def token
-    @token
   end
 
 

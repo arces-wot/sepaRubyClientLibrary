@@ -1,12 +1,5 @@
 #!/usr/bin/ruby
 
-# global requirements
-require 'securerandom'
-require 'net/http'
-require 'logger'
-require 'base64'
-require 'json'
-
 # local requirements
 load 'KP.rb'
 

@@ -3,11 +3,6 @@
 # global requirements
 require 'faye/websocket'
 require 'eventmachine'
-require 'securerandom'
-require 'net/http'
-require 'logger'
-require 'base64'
-require 'json'
 
 
 # Consumer class
