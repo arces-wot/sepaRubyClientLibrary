@@ -2,10 +2,7 @@
 
 # global requirements
 require 'securerandom'
-require 'net/http'
 require 'logger'
-require 'base64'
-require 'json'
 
 # local requirements
 load 'SAPhandler.rb'
@@ -25,7 +22,11 @@ class KP
 
     # loading SAP file
     @logger.debug("Reading SAP file #{sapFile}")
-    @sapProfile = SAPhandler.new(sapFile)
+    if File.exists?(sapFile)
+      @sapProfile = SAPhandler.new(sapFile)
+    else
+      raise SepaKPIException.new(@@SAPFILE_NOT_FOUND)
+    end
 
     # store the client ID
     @kpId = clientId

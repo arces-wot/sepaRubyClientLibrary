@@ -2,29 +2,40 @@
 
 # local requirements
 load 'KP.rb'
+load 'Errors.rb'
 
 # Producer class
 class Producer < KP
 
   # class constructor
-  def initialize(sapFile, clientId, secure)
+  def initialize(sapFile, clientId, secure, httpManager)
 
     # invoke mother's constructor
     super(sapFile, clientId, secure)
 
-    # HTTPManager instance
-    if @sapProfile.httpURI.nil? 
-      raise SepaKPIError.new("Wrong or incomplete description of http parameters in SAP file")
-    elsif @sapProfile.httpsURI.nil? or @sapProfile.httpsRegistrationURI.nil? or @sapProfile.httpsTokenReqURI.nil?
-      raise SepaKPIError.new("Wrong or incomplete description of https parameters in SAP file")
-    else
-      @httpManager = HTTPManager.new(@sapProfile.httpURI, 
-                                     @sapProfile.httpsURI, 
-                                     @sapProfile.httpsRegistrationURI, 
-                                     @sapProfile.httpsTokenReqURI, 
-                                     @kpId, secure)
-    end
+    # debug print
+    @logger.debug("=== Producer::initialize invoked ===")    
 
+    # HTTPManager instance
+    # check if an existing HTTPManager is given
+    if httpManager.nil?
+      if @sapProfile.httpURI.nil? 
+        raise SepaKPIError.new(@@INCOMPLETE_HTTP_SECTION)
+      elsif @sapProfile.httpsURI.nil? or @sapProfile.httpsRegistrationURI.nil? or @sapProfile.httpsTokenReqURI.nil?
+        raise SepaKPIError.new(@@INCOMPLETE_HTTPS_SECTION)
+      else
+        @httpManager = HTTPManager.new(@sapProfile.httpURI, 
+                                       @sapProfile.httpsURI, 
+                                       @sapProfile.httpsRegistrationURI, 
+                                       @sapProfile.httpsTokenReqURI, 
+                                       @kpId, secure)
+      end
+      
+    # HTTPManager given
+    else
+      @httpManager = httpManager
+    end
+      
   end
  
   

@@ -6,6 +6,7 @@ require 'eventmachine'
 
 # local requirement
 load 'KP.rb'
+load 'Errors.rb'
 load 'SepaKPIError.rb'
 
 
@@ -31,22 +32,18 @@ class Consumer < KP
     @wsURI = @sapProfile.wsURI    
     @wssURI = @sapProfile.wssURI
     if @wsURI.nil?
-      raise SepaKPIError.new("Wrong or incomplete description of websocket parameters in SAP file")
+      raise SepaKPIError.new(@@INCOMPLETE_WS_SECTION)
     elsif @wssURI.nil?
-      raise SepaKPIError.new("Wrong or incomplete description of secure websocket parameters in SAP file")
+      raise SepaKPIError.new(@@INCOMPLETE_WSS_SECTION)
     end
       
     # HTTPManager instance
     if @sapProfile.httpURI.nil? 
-      raise SepaKPIError.new("Wrong or incomplete description of http parameters in SAP file")
+      raise SepaKPIError.new(@@INCOMPLETE_HTTP_SECTION)
     elsif @sapProfile.httpsURI.nil? or @sapProfile.httpsRegistrationURI.nil? or @sapProfile.httpsTokenReqURI.nil?
-      raise SepaKPIError.new("Wrong or incomplete description of https parameters in SAP file")
+      raise SepaKPIError.new(@@INCOMPLETE_HTTPS_SECTION)
     else
-      @httpManager = HTTPManager.new(@sapProfile.httpURI, 
-                                     @sapProfile.httpsURI, 
-                                     @sapProfile.httpsRegistrationURI, 
-                                     @sapProfile.httpsTokenReqURI, 
-                                     @kpId, secure)
+      @httpManager = HTTPManager.new(@sapProfile.httpURI, @sapProfile.httpsURI, @sapProfile.httpsRegistrationURI, @sapProfile.httpsTokenReqURI, @kpId, secure)
     end
       
   end
@@ -108,7 +105,7 @@ class Consumer < KP
       EM.run{
 
         # opening websocket
-        ws = Faye::WebSocket::Client.new("ws://localhost:9000/sparql")
+        ws = Faye::WebSocket::Client.new(@wsURI.to_s)
         @logger.debug("Subscribing to host #{@wsURI.to_s}")
         
         # send subscription 
