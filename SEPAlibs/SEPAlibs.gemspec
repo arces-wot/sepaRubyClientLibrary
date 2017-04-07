@@ -15,9 +15,8 @@ Gem::Specification.new do |s|
                    "lib/LowKP.rb",
                    "lib/Producer.rb",
                    "lib/SAPhandler.rb",
-                   "lib/SepaKPIError.rb",
-                   "LICENSE.txt"
+                   "lib/SepaKPIError.rb"
   		  ]
   s.homepage    = 'http://wot.arces.unibo.it'
-  s.license     = 'GPLv3'
+  s.license     = 'GPL-3.0'
 end
