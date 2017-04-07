@@ -92,31 +92,46 @@ class HTTPManager
     # choose between secure or insecure
     if @secure
 
+      # initialization
+      retryNeeded = false
+
       # register, if needed
       if @clientId.nil? or @clientSecret.nil?
         register()
       end
       
-      # get token, if needed
-      if @token.nil?
-        getToken()
-      end
+      # loop is necessary to retry if token is expired
+      loop do
       
-      # https request
-      secret = "Bearer " + @token
-      http = Net::HTTP.new(@httpsURI.host, @httpsURI.port)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl?
-      req = Net::HTTP::Post.new(@httpsURI.path,
-                                'Content-Type' => 'application/sparql-query',
-                                'Accept' => 'application/json',
-                                'Authorization' => secret.delete("\n"))
-      req.body = sparqlQuery
-      res = http.request(req)
+        # get token, if needed
+        if @token.nil? or retryNeeded
+          getToken()
+        end
+      
+        # https request
+        secret = "Bearer " + @token
+        http = Net::HTTP.new(@httpsURI.host, @httpsURI.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl?
+        req = Net::HTTP::Post.new(@httpsURI.path,
+                                  'Content-Type' => 'application/sparql-query',
+                                  'Accept' => 'application/json',
+                                  'Authorization' => secret.delete("\n"))
+        req.body = sparqlQuery
+        res = http.request(req)
+        
+        # result
+        result = res.body
+        status = res.code
+        if status == "401"
+          puts res.body
+          retryNeeded = true
+          @logger.debug("WE SHOULD REQUEST A NEW TOKEN")
+        end      
 
-      # result
-      status = res.code
-      result = res.body
+        break if retryNeeded == false
+
+      end
 
     # not secure
     else

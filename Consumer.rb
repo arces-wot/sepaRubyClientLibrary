@@ -4,6 +4,9 @@
 require 'faye/websocket'
 require 'eventmachine'
 
+# local requirement
+load 'KP.rb'
+
 
 # Consumer class
 class Consumer < KP
@@ -19,9 +22,9 @@ class Consumer < KP
     
     # read queries
     @queries = @sapProfile.queries
-    
-    # handle open subscriptions
-    subs = Hash.new()
+
+    # active subs
+    @subs = Hash.new()
 
   end
   
@@ -67,40 +70,90 @@ class Consumer < KP
 
 
   # subscribe
-  def subscribe(sparqlQuery)
+  def subscribe(sparqlQuery, forcedBindings, fromSap, handler)
     
+    # debug
+    @logger.debug("=== Consumer::subscribe invoked ===")
+
+    # local state variables
+    subid = nil
+    error = false
+
+    # starting thread    
     t = Thread.start{
+
       EM.run{
 
-        ws = Faye::WebSocket::Client.new(@wsURI.to_s)
-        @logger.debug("Subscribing to host #{@wsURI}")
+        # opening websocket
+        ws = Faye::WebSocket::Client.new("ws://localhost:9000/sparql")
+        @logger.debug("Subscribing to host #{@wsURI.to_s}")
         
-        ws.on :open do |event|
-          puts "OPEN"
-          p [:open]
-          ws.send("subscribe=" + sparqlQuery)
-          t.join()
+        # send subscription 
+        ws.on :open do |event|        
+          @logger.debug("Sending subscription")
+          ws.send("subscribe=" + sparqlQuery)               
         end
         
+        # received message
         ws.on :message do |event|
-          puts "MESSAGE"
-          p [:message, event.data]
+
+          # parse received message
+          msg = JSON.parse(event.data)
+
+          # if it is the confirm message
+          if msg.has_key?("subscribed")
+
+            # get the sub id
+            subid = msg["subscribed"]
+            @logger.debug("Subscription confirmed: #{subid}")
+
+            # store the subscription
+            @subs[subid] = ws
+            
+          end
+
+          # if it contains results
+          if msg.has_key?("results")            
+            if handler.methods.include? :handle
+              handler.handle(msg["results"]["addedresults"], msg["results"]["removedresults"])
+            end
+          end
+          
         end
         
+        # close
         ws.on :close do |event|
-          puts "CLOSING"
-          p [:close, event.code, event.reason]
+          @logger.debug("Closing websocket -- #{event.code} -- #{event.reason}")
           ws = nil
         end
-      }         
+      }
+
     }
-    puts "RETURNING"
+
+    # return status, sub_id
+    while subid.nil? do
+      @logger.debug("Waiting sub_id...")
+      sleep 1
+    end
+    return true, subid
     
   end
 
 
   # unsubscribe
-  def unsubscribe
+  def unsubscribe(subid)
+    
+    # debug
+    @logger.debug("=== Consumer::unsubscribe invoked ===")
+
+    # check if subscription exists
+    if @subs.has_key?(subid)
+      @subs[subid].close()
+    end
+
+    # return
+    return true
+
   end
 
 end
