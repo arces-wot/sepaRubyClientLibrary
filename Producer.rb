@@ -12,6 +12,19 @@ class Producer < KP
     # invoke mother's constructor
     super(sapFile, clientId, secure)
 
+    # HTTPManager instance
+    if @sapProfile.httpURI.nil? 
+      raise SepaKPIError.new("Wrong or incomplete description of http parameters in SAP file")
+    elsif @sapProfile.httpsURI.nil? or @sapProfile.httpsRegistrationURI.nil? or @sapProfile.httpsTokenReqURI.nil?
+      raise SepaKPIError.new("Wrong or incomplete description of https parameters in SAP file")
+    else
+      @httpManager = HTTPManager.new(@sapProfile.httpURI, 
+                                     @sapProfile.httpsURI, 
+                                     @sapProfile.httpsRegistrationURI, 
+                                     @sapProfile.httpsTokenReqURI, 
+                                     @kpId, secure)
+    end
+
   end
  
   

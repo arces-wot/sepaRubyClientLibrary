@@ -8,9 +8,9 @@ require 'base64'
 require 'json'
 
 # local requirements
-load 'HTTPManager.rb'
 load 'SAPhandler.rb'
-
+load 'HTTPManager.rb'
+load 'SepaKPIError.rb'
 
 # Producer class
 class KP
@@ -27,23 +27,12 @@ class KP
     @logger.debug("Reading SAP file #{sapFile}")
     @sapProfile = SAPhandler.new(sapFile)
 
-    # reading websocket configuration
-    @wsURI = @sapProfile.wsURI
-    @wssURI = @sapProfile.wssURI
-
     # store the client ID
     @kpId = clientId
     if clientId.nil?
       @kpId = SecureRandom.uuid
     end
     @logger.debug("Client name set to #{@kpId}")
-
-    # HTTPManager instance
-    @httpManager = HTTPManager.new(@sapProfile.httpURI, 
-                                   @sapProfile.httpsURI, 
-                                   @sapProfile.httpsRegistrationURI, 
-                                   @sapProfile.httpsTokenReqURI, 
-                                   @kpId, secure)
 
   end
 

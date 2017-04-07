@@ -6,6 +6,7 @@ require 'eventmachine'
 
 # local requirement
 load 'KP.rb'
+load 'SepaKPIError.rb'
 
 
 # Consumer class
@@ -25,7 +26,29 @@ class Consumer < KP
 
     # active subs
     @subs = Hash.new()
-
+    
+    # reading websocket configuration    
+    @wsURI = @sapProfile.wsURI    
+    @wssURI = @sapProfile.wssURI
+    if @wsURI.nil?
+      raise SepaKPIError.new("Wrong or incomplete description of websocket parameters in SAP file")
+    elsif @wssURI.nil?
+      raise SepaKPIError.new("Wrong or incomplete description of secure websocket parameters in SAP file")
+    end
+      
+    # HTTPManager instance
+    if @sapProfile.httpURI.nil? 
+      raise SepaKPIError.new("Wrong or incomplete description of http parameters in SAP file")
+    elsif @sapProfile.httpsURI.nil? or @sapProfile.httpsRegistrationURI.nil? or @sapProfile.httpsTokenReqURI.nil?
+      raise SepaKPIError.new("Wrong or incomplete description of https parameters in SAP file")
+    else
+      @httpManager = HTTPManager.new(@sapProfile.httpURI, 
+                                     @sapProfile.httpsURI, 
+                                     @sapProfile.httpsRegistrationURI, 
+                                     @sapProfile.httpsTokenReqURI, 
+                                     @kpId, secure)
+    end
+      
   end
   
   
@@ -149,10 +172,12 @@ class Consumer < KP
     # check if subscription exists
     if @subs.has_key?(subid)
       @subs[subid].close()
+    else
+      return false, "Subscription not found"
     end
 
     # return
-    return true
+    return true, nil
 
   end
 
